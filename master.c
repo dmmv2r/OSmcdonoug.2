@@ -3,6 +3,16 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+#define SHM_KEY 52
+#define MAX_PROC 20
+
+struct shmseg {
+   int choosing[MAX_PROC];
+   int number[MAX_PROC];
+};
 
 int main(int argc, char* argv[]) {
    printf("in master\n");
@@ -27,18 +37,41 @@ int main(int argc, char* argv[]) {
             break;
          default:
             printf("Arguments required\n");
-            return -1;
+            //return -1;
+            exit(-1);
       }
    }
 
    printf("time is %d\n", time);
    printf("processes is %d\n", processes);
 
+   if(processes > 20) {
+      printf("Invalid number of processes. Must be below 20\n");
+      exit(-1);
+   }
+
+   int shmid;
+   struct shmseg *shmp;
+   
+   shmid = shmget(SHM_KEY, sizeof(struct shmseg), 0644|IPC_CREAT);
+   if(shmid == -1) {
+      perror("Shared memory");
+      exit(-1);
+   }
+
+   shmp = shmat(shmid, NULL, 0);
+   if (shmp == (void *) -1) {
+      perror("shared memory attach");
+      exit(-1);
+   }
+
+
    printf("forking\n");
    pid_t childpid = 0;
    char* args[] = {"./slave", "7", NULL};
 
    if((childpid = fork())) {
+      shmp->number[1] = 3;
       printf("wait pid is %ld\n", (long)getpid());
       wait(NULL);
    } else {
@@ -51,6 +84,18 @@ int main(int argc, char* argv[]) {
    //char* args[] = {"./slave", "7", NULL};
    //execv("./slave", args);
    //printf("\n");
+
+
+   if(shmdt(shmp) == -1) {
+      perror("shmdt");
+      exit(-1);
+   }
+
+   if(shmctl(shmid, IPC_RMID, 0) == -1) {
+      perror("shmctl");
+      exit(-1);
+   }
+
 
    printf("leaving master\n");
    return 0;

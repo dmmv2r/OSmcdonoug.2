@@ -1,0 +1,11 @@
+Name: Donovan McDonough
+Date: 2/24/2022
+Project 2
+
+Use command "make" to compile project and "make clean" to delete all object files and executables.
+
+To run program, use command "./master" followed by "-h" for help in executing the program.
+
+Version Control accomplished using Git and Github. Project is located on Github under username "dmmv2r" and project "OSmcdonoug.2". Can also follow the link "github.com/dmmv2r/OSmcdonoug.2".
+
+WARNING: Project is not complete but it is however safe to run. Currently, the project only execs the specified amount of processes and outputs some test data to the screen. Took very long to get shared memory working and by the time that was accomplished, there was not much time to figure out all the other problems. Problems including forking in wrong order and having the bakery algorithm not work (mainly because the forking is messed up I believe). Was not able to implement the writing to files and so for now, the program only outputs things to the screen as tests.

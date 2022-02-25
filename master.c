@@ -27,7 +27,9 @@ int main(int argc, char* argv[]) {
    while((opt = getopt(argc, argv, "ht:n:")) != -1) {
       switch(opt) {
          case 'h':
-            printf("help message\n");
+            printf("Usage: use command ./master -t x -n y\n");
+            printf("where x is max amount of time until the program terminates (deafult 100)\n");
+            printf("and x is the number of processes to create (max is 20)\n");
             return -1;
          case 't':
             time  = atoi(optarg);
@@ -42,8 +44,8 @@ int main(int argc, char* argv[]) {
       }
    }
 
-   printf("time is %d\n", time);
-   printf("processes is %d\n", processes);
+  // printf("time is %d\n", time);
+  // printf("processes is %d\n", processes);
 
    if(processes > 20) {
       printf("Invalid number of processes. Must be below 20\n");
@@ -65,19 +67,34 @@ int main(int argc, char* argv[]) {
       exit(-1);
    }
 
+   shmp->number[1] = 3;
 
-   printf("forking\n");
    pid_t childpid = 0;
    char* args[] = {"./slave", "7", NULL};
 
-   if((childpid = fork())) {
+   int i;
+
+   for(i = 0; i < processes; i++) {
+      if((childpid != fork())) { //child
+         //wait(NULL);
+         printf("execing\n");
+         execv("./slave", args);
+      }
+      
+      printf("past fork\n");
+   }
+
+   printf("waiting\n");
+   wait(NULL);
+
+  /* if((childpid = fork())) {
       shmp->number[1] = 3;
       printf("wait pid is %ld\n", (long)getpid());
       wait(NULL);
    } else {
       printf("exec pid is %ld\n", (long)getpid());
       execv("./slave", args);
-   }
+   }*/
 
    //wait(NULL);
    //printf("\n");
